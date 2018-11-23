@@ -1,17 +1,15 @@
+#!/usr/bin/python
 import wx
-
 import adf4351
+import hwio
 
 # Define the tab content as classes:
-class TabOne(wx.Panel):
-    def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
-        t = wx.StaticText(self, -1, "This is the first tab", (20,20))
  
 class CWMode(wx.Panel):
-    def __init__(self, parent,pll):
+    def __init__(self, parent,pll,hwio):
         wx.Panel.__init__(self, parent)
         self.pll=pll
+        self.hwio=hwio
         #t = wx.StaticText(self, -1, "This is the second tab", (20,20))
         vbox = wx.BoxSizer(wx.VERTICAL) 
         hbox1 = wx.BoxSizer(wx.HORIZONTAL) 
@@ -19,7 +17,7 @@ class CWMode(wx.Panel):
         mhz = wx.StaticText(self, -1, "MHz")
         khz = wx.StaticText(self, -1, "KHz")
         hbox1.Add(l1, 1, wx.EXPAND|wx.ALIGN_RIGHT|wx.ALL,5) 
-        self.freq = wx.TextCtrl(self,style=wx.TE_PROCESS_ENTER|wx.TE_RIGHT)  
+        self.freq = wx.TextCtrl(self,style=wx.TE_PROCESS_ENTER|wx.TE_RIGHT,value="224.080")  
         self.freq.Bind(wx.EVT_TEXT_ENTER,self.EnterFrequencyCB)  
         hbox1.Add(self.freq,1,wx.EXPAND|wx.ALIGN_RIGHT|wx.ALL,5) 
         #hbox1.Add(mhz, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.ALL,5) 
@@ -95,12 +93,12 @@ class CWMode(wx.Panel):
 
     def EnterFrequencyCB(self,event): 
         val = event.GetString() 
-        print "Frequency Entered '%s'" % val
+        print("Frequency Entered '%s'" % val)
         self.calcFreqSetRegs()
 
     def ChannelSpacingCB(self,event) :
         val = event.GetString() 
-        print "Channel Spacing Entered '%s'" % val
+        print("Channel Spacing Entered '%s'" % val)
         self.pll.channelSpacing = float(val)
         self.calcFreqSetRegs()
         
@@ -110,37 +108,51 @@ class CWMode(wx.Panel):
         self.pll.setFreq(f)
         self.calcFreq.SetValue("%f" % pll.calcFreq)
         self.pll.formRegs()
+        self.hwio.adf.writeVal(self.pll.R5)
+        self.hwio.adf.writeVal(self.pll.R4)
+        self.hwio.adf.writeVal(self.pll.R3)
+        self.hwio.adf.writeVal(self.pll.R2)
+        self.hwio.adf.writeVal(self.pll.R1)
+        self.hwio.adf.writeVal(self.pll.R0)
+        print("adc0 = %f v" % self.hwio.adc[0].measure())
+        print("adc1 = %f v" % self.hwio.adc[1].measure())
+        print("adc2 = %f v" % self.hwio.adc[2].measure())
 
     def rfEnableCB(self,event):
         val = self.rfEn.GetValue()
-        print "RF enable changed: '%d'" % val
+        print("RF enable changed: '%d'" % val)
         self.pll.RF_PWR = val
         self.calcFreqSetRegs()
 
     def rfLevelCB(self,event):
         val = self.rfPwr.GetSelection()
-        print "RF Level changed: '%d'" % val
+        print("RF Level changed: '%d'" % val)
         self.pll.RF_EN = val
         self.calcFreqSetRegs()
 
     def cpcCB(self,event):
         val = self.cpc.GetSelection()
-        print "ChargePump Current changed: '%d'" % val
+        print("ChargePump Current changed: '%d'" % val)
         self.pll.CHG_PUMP = val
         self.calcFreqSetRegs()
 
     def EnterRcountCB(self,event):
         val=self.r.GetValue()
         self.pll.DBR_R=int(val)
-        print "R changed: '%d'" % self.pll.DBR_R
+        print("R changed: '%d'" % self.pll.DBR_R)
 
     def dblHalfCB(self,event) :
         dbl = self.dbl.GetValue()
         half = self.half.GetValue()
         val = (dbl*2) + half
         self.pll.DBR_RD = val
-        print "dbl half changed: '%d'" % val
+        print("dbl half changed: '%d'" % val)
         
+class TabTwo(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
+        t = wx.StaticText(self, -1, "This is the Second tab", (20,20))
+
 class TabThree(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -193,15 +205,15 @@ class TabThree(wx.Panel):
         self.Fit()  
 		
     def OnKeyTyped(self, event): 
-        print event.GetString() 
+        print(event.GetString() )
 		
     def OnEnterPressed(self,event): 
         val = event.GetString() 
-        print "Enter pressed got '%s'" % val
+        print("Enter pressed got '%s'" % val)
         self.t4.SetValue(val)
 		
     def OnMaxLen(self,event): 
-        print "Maximum length reached" 
+        print("Maximum length reached")
 
  
 class TabFour(wx.Panel):
@@ -211,7 +223,7 @@ class TabFour(wx.Panel):
  
  
 class MainFrame(wx.Frame):
-    def __init__(self,pll):
+    def __init__(self,pll,hwio):
         wx.Frame.__init__(self, None, title="wxPython tabs example @pythonspot.com")
  
         # Create a panel and notebook (tabs holder)
@@ -219,14 +231,14 @@ class MainFrame(wx.Frame):
         nb = wx.Notebook(p)
  
         # Create the tab windows
-        tab1 = TabOne(nb)
-        cwmode = CWMode(nb,pll)
+        cwmode = CWMode(nb,pll,hwio)
+        tab1 = TabTwo(nb)
         tab3 = TabThree(nb)
         tab4 = TabFour(nb)
  
         # Add the windows to tabs and name them.
-        nb.AddPage(tab1, "Tab 1")
         nb.AddPage(cwmode, "CW Mode")
+        nb.AddPage(tab1, "Tab 2")
         nb.AddPage(tab3, "Tab 3")
         nb.AddPage(tab4, "Tab 4")
  
@@ -252,5 +264,6 @@ class MainFrame(wx.Frame):
 if __name__ == "__main__":
     app = wx.App()
     pll=adf4351.adf4351()
-    MainFrame(pll).Show()
+    hwio=hwio.hwio()
+    MainFrame(pll,hwio).Show()
     app.MainLoop()

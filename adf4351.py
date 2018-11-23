@@ -1,5 +1,10 @@
 #import math
-#import spidev
+try: 
+    import spidev
+    useSpi = True
+except:
+    useSpi = False
+
 class adf4351 :
     def __init__ (self) :
         self.INT_N = 0
@@ -11,7 +16,7 @@ class adf4351 :
         self.LN_LS = 3
         self.MUX = 0
         self.DBR_RD = 0
-        self.DBR_R = 1
+        self.DBR_R = 10
         self.DUB_BUF = 0
         self.CHG_PUMP = 7
         self.LDF = 0
@@ -38,7 +43,7 @@ class adf4351 :
         self.RF_PWR = 0
         self.LD_MODE = 1
         self.refclk = 25.0 #MHz
-        self.channelSpacing = 100.0 #KHz
+        self.channelSpacing = 5.0 #KHz
         self.calcFreq = 0
 
     def formRegs(self) :
