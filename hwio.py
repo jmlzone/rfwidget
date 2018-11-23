@@ -38,9 +38,12 @@ class adcChan :
         if(self.useSpi) :
             self.spi.open(0,self.bus)
             self.spi.max_speed_hz=3000000
-            r = self.spi.xfer2([1, 8 + self.chan << 4, 0])
+            s = [((0x3<<1) + ((self.chan>>2 ) & 0x1)), ((self.chan & 0x3)<<6), 0]
+            print("send: %02x %02x %02x" %( s[0],s[1], s[2]))
+            r = self.spi.xfer2(s)
+            print("                     get: %02x %02x %02x" %(r[0],r[1], r[2]))
             self.spi.close()
-            data = ((r[1] & 3) << 8) + r[2]
+            data = ((r[1] & 0xf) << 8) + r[2]
             self.val = (float(data) * self.scale)
         else:
             self.val = -1
