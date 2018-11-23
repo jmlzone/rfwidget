@@ -121,13 +121,13 @@ class CWMode(wx.Panel):
     def rfEnableCB(self,event):
         val = self.rfEn.GetValue()
         print("RF enable changed: '%d'" % val)
-        self.pll.RF_PWR = val
+        self.pll.RF_EN = val
         self.calcFreqSetRegs()
 
     def rfLevelCB(self,event):
         val = self.rfPwr.GetSelection()
         print("RF Level changed: '%d'" % val)
-        self.pll.RF_EN = val
+        self.pll.RF_PWR = val
         self.calcFreqSetRegs()
 
     def cpcCB(self,event):

@@ -48,23 +48,29 @@ class adf4351 :
 
     def formRegs(self) :
         self.R0 = ((self.INT_N & 0xffff) << 15) + ((self.FRAC_F & 0xfff) <<3)
-        self.R1 = (self.PHASE_ADJ<<28) + (self.PRESCALAR<<27)
+        self.R1 = ((self.PHASE_ADJ<<28) + (self.PRESCALAR<<27)
         + ((self.PHASE_P & 0xfff)<<15)
-        + ((self.MODULUS_M & 0xfff)<<3) + 1
-        self.R2 = (self.LN_LS << 29) + (self.MUX << 26) + (self.DBR_RD <<24)
+        + ((self.MODULUS_M & 0xfff)<<3) + 1)
+        self.R2 = ((self.LN_LS << 29) + (self.MUX << 26) + (self.DBR_RD <<24)
         + ((self.DBR_R & 0x3ff) <<14) + (self.DUB_BUF<<13)
         + ((self.CHG_PUMP & 0xf) << 9) + (self.LDF<<8)
         + (self.LPD<<7) + (self.PD_POL<<6) + (self.PWR_DN<<5)
-        + (self.CP_TS<<4) + (self.CNTR_RST<<3) + 2
-        self.R3 = (self.BSCM<<23) + (self.ABP<<22) + (self.CHG_CAN<<21)
+        + (self.CP_TS<<4) + (self.CNTR_RST<<3) + 2)
+        self.R3 = ((self.BSCM<<23) + (self.ABP<<22) + (self.CHG_CAN<<21)
         + (self.CSR<<18) + (self.CLK_DIV_MODE<<15)
-        + ((self.CLK_DIV_VAL & 0xfff) <<3) + 3
-        self.R4 = (self.FB_SEL<<23) + (self.RF_DIV_SEL<<20)
+        + ((self.CLK_DIV_VAL & 0xfff) <<3) + 3)
+        self.R4 = ((self.FB_SEL<<23) + (self.RF_DIV_SEL<<20)
         + (self.BAND_SEL_CLK_DIV<<12)
         + (self.VCO_PD<<11) + (self.MTLD<<10) + (self.AUX_SEL<<9)
         + (self.AUX_EN<<8) + (self.AUX_PWR<<6) + (self.RF_EN<<5)
-        + (self.RF_PWR<<3) +  4
+        + (self.RF_PWR<<3) +  4)
         self.R5 = (self.LD_MODE<<22) + (3 << 19) + 5
+        print("r5 = %08x" % self.R5);
+        print("r4 = %08x" % self.R4);
+        print("r3 = %08x" % self.R3);
+        print("r2 = %08x" % self.R2);
+        print("r1 = %08x" % self.R1);
+        print("r0 = %08x" % self.R0);
 
     """ from MainForm.cs sample code on the analog divices web site
         https://ez.analog.com/thread/13743

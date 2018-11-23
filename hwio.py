@@ -52,8 +52,10 @@ class adfIf:
         self.bus = bus
     def writeVal(self,val32) :
         v = [((val32>>24) & 0xff),((val32>>16) & 0xff),((val32>>8) & 0xff),(val32 & 0xff)]
+        r = val32 & 0x7
+        print("r %d = %02x %02x %02x %02x" % (r, v[0], v[1], v[2], v[3]))
         if(self.useSpi) :
             self.spi.open(0,self.bus)
-            self.spi.max_speed_hz=3000000
+            self.spi.max_speed_hz=1000000
             r = self.spi.xfer2(v)
             self.spi.close()
